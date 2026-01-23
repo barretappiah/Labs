@@ -1,3 +1,7 @@
+# Barret Appiah
+# CMPUT 175
+# Lab 1
+
 # Loads code ID from station name
 def name_to_code(location):
     with open("codes.txt", 'r') as file:
@@ -59,7 +63,7 @@ def find_routes(starting_code, departing_code):
                 for i in range(1, len(start_route)):
                     if start_route[i] in depart_route:
                         transfer_name = code_to_name(start_route[i])
-                        print('\nTransfer option found: ')
+                        print('\nTransfer option found:')
                         print(f'\nTake route {start_route[0]} and get off at {transfer_name}.\nThen take route {depart_route[0]} to your destination.\n')
 
                         print(f'Route {display_route(start_route)}')
