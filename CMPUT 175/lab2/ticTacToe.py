@@ -40,7 +40,7 @@ class TicTacToe:
         #   -----------
         # 2    |   |           
         
-        print('   1   2   3 ')
+        print('   0   1   2 ') # BUG HERE (logic) should be 0-2
         seperator = '  -----------'
         for x in range(len(self.board)):
             temp = []
@@ -53,7 +53,7 @@ class TicTacToe:
                     temp.append(' \033[95mX\033[0m ') 
                 else:
                     temp.append(str(y))
-            print(f'{x+1} {"|".join(temp)}')
+            print(f'{x} {"|".join(temp)}') # BUG HERE (functiona) a temp+! makes it 1-3
             if x != len(self.board) - 1: # BUG HERE (functional) without the -1, an extra separator is added
                 print(seperator)
 

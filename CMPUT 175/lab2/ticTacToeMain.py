@@ -28,7 +28,7 @@ def getCoord(player, dimension):
     '''
     LOWER = 0
     UPPER = 2
-    index = str(int(input('Player ' + str(player) + ', please enter a ' + dimension+': ')) - 1) # BUG HERE (functional) python starts at 0, not 1
+    index = (input('Player ' + str(player) + ', please enter a ' + dimension+': '))
     while True:
         if index.isdigit() and int(index) in range(LOWER, UPPER + 1): # BUG HERE (logic) range (..., UPPER) excludes UPPER
             return int(index) # BUG HERE (logic) meant to return and INTEGER of index
@@ -99,6 +99,7 @@ def main():
             # update board and check if game continues
             if myBoard.update(row, col, entry):
                 print(f"Player {turn+1}'s turn ended")
+                clear() # BUG HERE (functional) not clearing board after turn
                 gameOver = isGameOver(myBoard, turn + 1)
                 turn = (turn+1) % 2 # BUG HERE (mathematical) // is floor division,we need to use % / remainder       
             # need to reprompt for new input for given player   
