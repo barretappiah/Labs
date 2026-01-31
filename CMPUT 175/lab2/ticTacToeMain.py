@@ -28,10 +28,10 @@ def getCoord(player, dimension):
     '''
     LOWER = 0
     UPPER = 2
-    index = input('Player ' + str(player) + ', please enter a ' + dimension+': ')
+    index = str(int(input('Player ' + str(player) + ', please enter a ' + dimension+': ')) - 1) # BUG HERE (functional) python starts at 0, not 1
     while True:
-        if index.isdigit() and int(index) in range(LOWER, UPPER):
-            return index
+        if index.isdigit() and int(index) in range(LOWER, UPPER + 1): # BUG HERE (logic) range (..., UPPER) excludes UPPER
+            return int(index) # BUG HERE (logic) meant to return and INTEGER of index
         else:
             index = input(f"Invalid input! Please enter a valid {dimension}: ")
 
@@ -47,7 +47,7 @@ def isGameOver(myBoard, player):
     '''
     if myBoard.isWinner(player):
         clear()
-        myBoard.drawboard()
+        myBoard.drawBoard() # BUG HERE (funcional) drawboard != drawBoard
         print ('Player', player ,"wins. Congrats!")           
         return True
     elif myBoard.boardFull():
@@ -68,7 +68,7 @@ def playAgain():
     playAgain = ' ' 
     # validate user's input
     while playAgain[0].upper() not in ['Y', 'N']:
-        playAgain=input("Do you want to play another game? (Y/N) ")
+        playAgain = input("Do you want to play another game? (Y/N) ")
     return playAgain[0].upper() == "Y"   
 
 
@@ -88,7 +88,7 @@ def main():
         gameOver=False
         turn = 0
         while not gameOver:
-            myBoard.drawboard()
+            myBoard.drawBoard() # BUG HERE (funcional) drawboard != drawBoard
             
             # get input from user
             entry = ['O','X'][turn]
@@ -99,15 +99,16 @@ def main():
             # update board and check if game continues
             if myBoard.update(row, col, entry):
                 print(f"Player {turn+1}'s turn ended")
-                gameOver = isGameOver(myBoard, turn+1)
-                turn = (turn+1) // 2            
+                gameOver = isGameOver(myBoard, turn + 1)
+                turn = (turn+1) % 2 # BUG HERE (mathematical) // is floor division,we need to use % / remainder       
             # need to reprompt for new input for given player   
             else:
                 print('Error: could not make move!')
             time.sleep(1)
         clear()
-        newGame = playAgain     
+        newGame = playAgain()
             
     print('Thanks for playing! Goodbye.')
             
-    main()      
+if __name__ == '__main__':
+    main()

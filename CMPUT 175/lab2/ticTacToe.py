@@ -82,10 +82,10 @@ class TicTacToe:
            letter (str) - entry to place in square
         Returns: True if attempted update was successful; False otherwise
         '''
-        if self.squareIsEmpty(row,col) == True: # BUG HERE (logic) susbtractin 1 from row & col checks the wrong spot
+        if self.squareIsEmpty(row,col) == True: # BUG HERE (logic) susbtracting 1 from row & col checks the wrong spot
             self.board[row][col] = letter       
             return True
-        elif self.squareIsEmpty(row,col) == False: # BUG HERE (logic) susbtractin 1 from row & col checks the wrong spot
+        elif self.squareIsEmpty(row,col) == False: # BUG HERE (logic) susbtracting 1 from row & col checks the wrong spot
             return False
     
     
@@ -111,7 +111,8 @@ class TicTacToe:
         Returns: True if current player has won with their most recent move; 
                  False otherwise
         '''
-        sym = ['O','X'][playerId]  
+        
+        sym = ['O','X'][playerId - 1] # BUG HERE (logical) without substracting 1, it checks for the 2nd and 3rd index
         winCon = sym * SIZE
         won = False
         for i in range(len(self.board)):
@@ -126,8 +127,7 @@ class TicTacToe:
             won = True
         if self.board[0][2] + self.board[1][1] + self.board[2][0] == winCon:
             won = True
-        
-        
+ 
         return won     
 
 
