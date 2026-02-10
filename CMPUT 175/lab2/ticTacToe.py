@@ -53,7 +53,7 @@ class TicTacToe:
                     temp.append(' \033[95mX\033[0m ') 
                 else:
                     temp.append(str(y))
-            print(f'{x} {"|".join(temp)}') # BUG HERE (functiona) a temp+! makes it 1-3
+            print(f'{x} {"|".join(temp)}') # BUG HERE (functiona) a temp+1 makes it 1-3
             if x != len(self.board) - 1: # BUG HERE (functional) without the -1, an extra separator is added
                 print(seperator)
 
@@ -128,7 +128,7 @@ class TicTacToe:
         if self.board[0][2] + self.board[1][1] + self.board[2][0] == winCon:
             won = True
  
-        return won     
+        return won
 
 
 def main():
