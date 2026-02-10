@@ -1,6 +1,10 @@
 
 def countries_deficit():
-    with open('country.txt' as)
+    with open('country.txt', 'r') as file:
+        countries = file.read().splitlines()
+        for country in countries:
+            country = country.join(',')
+    print(countries)
 
 def table_maker_a(countries):
     titleOne = 'Country'
