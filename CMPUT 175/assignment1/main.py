@@ -1,9 +1,15 @@
 
+def countries_deficit():
+    with open('country.txt' as)
 
+def table_maker_a(countries):
+    titleOne = 'Country'
+    titleTwo = 'Trade Deficit (Billions USD)'
+    sizeOne = 34
+    sizeTwo = 28
 
-def table_maker_a(countries, size, titles):
     # Formatting
-    title = '| ' + titles[0] + (' ' * (size[0] - len(titles[0]) - 1)) + ' | ' + titles[1] + (' ' * (size[1] - len(titles[1]))) + ' |'
+    title = '| ' + titleOne + (' ' * (sizeOne - len(titleOne) - 1)) + ' | ' + titleTwo + (' ' * (sizeTwo - len(titleTwo))) + ' |'
     bar = '-' * len(title)
 
     # Display
@@ -12,14 +18,14 @@ def table_maker_a(countries, size, titles):
     print(bar)
 
     for country in countries:
-        print('| ' + country + (' ' * (size[0] - len(country) - 1)) + ' | $' + (' ' * (size[1] - len(str(countries[country])) - 1)) + str(countries[country]) + ' |')
+        print('| ' + country + (' ' * (sizeOne - len(country) - 1)) + ' | $' + (' ' * (sizeTwo - len(str(countries[country])) - 1)) + str(countries[country]) + ' |')
+    
+    print(bar)
 
 def main():
     # Section A: countries with highest trade deficits
-    size = [14, 18]
     countries = {'Belgium':2 , 'Canada':3}
-    titles = ['Industry', 'Number of Products']
-
-    table_maker_a(countries, size, titles)
+    countries = countries_deficit()
+    table_maker_a(countries)
 
 main()
