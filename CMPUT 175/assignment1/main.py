@@ -19,6 +19,8 @@ def countries_deficit():
     return deficit
               
 def table_maker_a(deficit):
+    print('\n\n--------------------- SECTION A ---------------------\n')
+
     titleOne = 'Country'
     titleTwo = 'Trade Deficit (Billions USD)'
     sizeOne = 34
@@ -65,15 +67,62 @@ def industry_products():
     return industries
 
 def exlusive_products():
+    pid_countries = {}
+
+    with open('product_country.txt', 'r') as file:
+        products = file.read().splitlines()
+
+    for line in products[1:]:
+        pid, country, price = [x.strip() for x in line.split(',')]
+
+        if pid not in pid_countries:
+            pid_countries[pid] = set()
+        pid_countries[pid].add(country)
+
+    exclusive_pids = {}
+
+    for pid in pid_countries:
+        if len(pid_countries[pid]) == 1:
+            exclusive_pids[pid] = pid_countries[pid]
+
+    exclusive_pids_titled = []
     with open('product.txt', 'r') as file:
         products = file.read().splitlines()
 
+    for pid in exclusive_pids:
         for product in products:
             product = product.strip().split(',')
-            print(product)
 
+            if product[0] == str(pid):
+                exclusive_pids_titled.append(product)
+
+    with open('country.txt', 'r') as file:
+        countries = file.read().splitlines()
+
+    exclusive_products = []
+
+    for i in range(len(exclusive_pids_titled)):
+        exclusive_products.append([list(exclusive_pids[exclusive_pids_titled[i][0]])[0], exclusive_pids_titled[i][0], exclusive_pids_titled[i][2]])
+
+    filtered_products = []
+
+    for product in exclusive_products:
+        for country in countries:
+            country = country.strip().split(',')
+
+            coded = product[0]
+            if country[0] == product[0]:
+                product[0] = country[1]
+            if product[0] != coded:
+                filtered_products.append(product)
+
+    return filtered_products
+
+def most_exclusive(exclusive_products):
+    return exclusive_products
 
 def table_maker_b(industries, products):
+    print('\n\n--------------------- SECTION B ---------------------\n')
 
     # ----------
     # INDUSTRIES
@@ -103,8 +152,8 @@ def table_maker_b(industries, products):
     titleTwo = 'Product Name'
     titleThree = 'Producing Country'
     sizeOne = 9
-    sizeTwo = 15
-    sizeThree = 35
+    sizeTwo = 35
+    sizeThree = 40
 
     # Formatting
     title = '| ' + titleOne + (' ' * (sizeOne - len(titleOne))) + ' | ' + titleTwo + (' ' * (sizeTwo - len(titleTwo))) + ' | '+ titleThree + (' ' * (sizeThree - len(titleThree))) + ' |'
@@ -116,7 +165,7 @@ def table_maker_b(industries, products):
     print(bar)
 
     for product in products:
-        print('| ' + products[product][1] + (' ' * (sizeOne - len(products[product][1]))) + ' | ' + product + (' ' * (sizeTwo - len(product))) + ' | '+ products[product][0] + (' ' * (sizeThree - len(products[product][0]))) + ' |')
+        print('| ' + product[1] + (' ' * (sizeOne - len(product[1]))) + ' | ' + product[0] + (' ' * (sizeTwo - len(product[0]))) + ' | '+ product[2] + (' ' * (sizeThree - len(product[2]))) + ' |')
     
     print(bar)
 
@@ -128,7 +177,8 @@ def main():
     # Section B: understanding product availability
     industries = industry_products()
     products = exlusive_products()
-    products = {'GoPro HERO11': ['Niger (the)', 'MKS009'], 'Television': ['Canada', 'MKDFS922']}
+    most_exclusive_country = most_exclusive(products)
+    print(most_exclusive_country)
     table_maker_b(industries, products)
 
 main()
