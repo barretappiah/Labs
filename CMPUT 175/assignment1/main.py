@@ -119,13 +119,24 @@ def exlusive_products():
     return filtered_products
 
 def most_exclusive(exclusive_products):
-    return exclusive_products
+    exclusivity = {}
 
-def table_maker_b(industries, products):
+    for product in exclusive_products:
+        country = product[0]
+
+        if country not in exclusivity:
+            exclusivity[country] = 0
+        exclusivity[country] += 1
+    
+    exclusive_country = max(exclusivity, key=exclusivity.get)
+
+    return [exclusive_country, exclusivity[exclusive_country]]
+
+def table_maker_b(industries, products, exclusive_country):
     print('\n\n--------------------- SECTION B ---------------------\n')
 
     # ----------
-    # INDUSTRIES
+    # INDUSTRIES 1.
     # ----------
     titleOne = 'Industry'
     titleTwo = 'Number of Products'
@@ -145,7 +156,7 @@ def table_maker_b(industries, products):
     print(bar)
 
     # ----------
-    # EXCLUSIVES
+    # EXCLUSIVES 2.
     # ----------
 
     titleOne = 'PID'
@@ -169,6 +180,47 @@ def table_maker_b(industries, products):
     
     print(bar)
 
+    # --------------
+    # Most Exclusive 3.
+    # --------------
+
+    titleOne = 'Country'
+    titleTwo = 'No. of Exclusive Products'
+    sizeOne = 10
+    sizeTwo = 26
+
+    # Formatting
+    title = '| ' + titleOne + (' ' * (sizeOne - len(titleOne))) + ' | ' + titleTwo + (' ' * (sizeTwo - len(titleTwo))) + ' |'
+    bar = '-' * len(title)
+
+    # Output
+    print(bar)
+    print(title)
+    print(bar)
+    print('| ' + str(exclusive_country[0]) + (' ' * (sizeOne - len(str(exclusive_country[0])))) + ' | ' + (' ' * (sizeTwo - len(str(exclusive_country[1])))) + str(exclusive_country[1]) + ' |')
+    print(bar)
+
+    # ---------------
+    # Least Exclusive 4.
+    # ---------------
+
+    titleOne = 'Industry'
+    titleTwo = 'No. of Exclusive Products'
+    sizeOne = 10
+    sizeTwo = 26
+
+    # Formatting
+    title = '| ' + titleOne + (' ' * (sizeOne - len(titleOne))) + ' | ' + titleTwo + (' ' * (sizeTwo - len(titleTwo))) + ' |'
+    bar = '-' * len(title)
+
+    # Output
+    print(bar)
+    print(title)
+    print(bar)
+    print('| ' + str(exclusive_country[0]) + (' ' * (sizeOne - len(str(exclusive_country[0])))) + ' | ' + (' ' * (sizeTwo - len(str(exclusive_country[1])))) + str(exclusive_country[1]) + ' |')
+    print(bar)
+
+
 def main():
     # Section A: countries with highest trade deficits
     deficit = countries_deficit()
@@ -179,6 +231,6 @@ def main():
     products = exlusive_products()
     most_exclusive_country = most_exclusive(products)
     print(most_exclusive_country)
-    table_maker_b(industries, products)
+    table_maker_b(industries, products, most_exclusive_country)
 
 main()
