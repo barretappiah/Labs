@@ -132,7 +132,31 @@ def most_exclusive(exclusive_products):
 
     return [exclusive_country, exclusivity[exclusive_country]]
 
-def table_maker_b(industries, products, exclusive_country):
+def least_exclusive(exclusive_products):
+
+    with open('product.txt', 'r') as file:
+        products = file.read().splitlines()
+        industries = {'Agriculture': 0, 'Food': 0, 'Manufacturing': 0, 'Pharmacy': 0, 'Tech': 0}
+
+        for exclusive in exclusive_products:
+            for product in products:
+                product = product.strip().split(',')
+                if exclusive[1] == product[0]:
+                    if product[1].strip() == 'Agriculture':
+                        industries['Agriculture'] += 1
+                    elif product[1].strip() == 'Food':
+                        industries['Food'] += 1
+                    elif product[1].strip() == 'Manufacturing':
+                        industries['Manufacturing'] += 1
+                    elif product[1].strip() == 'Pharmacy':
+                        industries['Pharmacy'] += 1
+                    elif product[1].strip() == 'Tech':
+                        industries['Tech'] += 1
+
+    least_exclusive_industry = [min(industries), industries[min(industries)]]
+    return least_exclusive_industry
+        
+def table_maker_b(industries, products, exclusive_country, inclusive_industry):
     print('\n\n--------------------- SECTION B ---------------------\n')
 
     # ----------
@@ -186,7 +210,7 @@ def table_maker_b(industries, products, exclusive_country):
 
     titleOne = 'Country'
     titleTwo = 'No. of Exclusive Products'
-    sizeOne = 10
+    sizeOne = 13
     sizeTwo = 26
 
     # Formatting
@@ -206,7 +230,7 @@ def table_maker_b(industries, products, exclusive_country):
 
     titleOne = 'Industry'
     titleTwo = 'No. of Exclusive Products'
-    sizeOne = 10
+    sizeOne = 13
     sizeTwo = 26
 
     # Formatting
@@ -217,7 +241,27 @@ def table_maker_b(industries, products, exclusive_country):
     print(bar)
     print(title)
     print(bar)
-    print('| ' + str(exclusive_country[0]) + (' ' * (sizeOne - len(str(exclusive_country[0])))) + ' | ' + (' ' * (sizeTwo - len(str(exclusive_country[1])))) + str(exclusive_country[1]) + ' |')
+    print('| ' + inclusive_industry[0] + (' ' * (sizeOne - len(str(inclusive_industry[0])))) + ' | ' + (' ' * (sizeTwo - len(str(inclusive_industry[1])))) + str(inclusive_industry[1]) + ' |')
+    print(bar)
+
+    # ---------------
+    # Most Productive 5.
+    # ---------------
+
+    titleOne = 'Country'
+    titleTwo = 'Number of Products'
+    sizeOne = 13
+    sizeTwo = 26
+
+    # Formatting
+    title = '| ' + titleOne + (' ' * (sizeOne - len(titleOne))) + ' | ' + titleTwo + (' ' * (sizeTwo - len(titleTwo))) + ' |'
+    bar = '-' * len(title)
+
+    # Output
+    print(bar)
+    print(title)
+    print(bar)
+    print('| ' + inclusive_industry[0] + (' ' * (sizeOne - len(str(inclusive_industry[0])))) + ' | ' + (' ' * (sizeTwo - len(str(inclusive_industry[1])))) + str(inclusive_industry[1]) + ' |')
     print(bar)
 
 
@@ -230,7 +274,7 @@ def main():
     industries = industry_products()
     products = exlusive_products()
     most_exclusive_country = most_exclusive(products)
-    print(most_exclusive_country)
-    table_maker_b(industries, products, most_exclusive_country)
+    least_exclusive_industry = least_exclusive(products)
+    table_maker_b(industries, products, most_exclusive_country, least_exclusive_industry)
 
 main()
