@@ -155,8 +155,81 @@ def least_exclusive(exclusive_products):
 
     least_exclusive_industry = [min(industries), industries[min(industries)]]
     return least_exclusive_industry
+
+def most_productive_countries():
+    # Count number of products produced by each country code
+    counts = {}
+    with open('product_country.txt', 'r') as file:
+        lines = file.read().splitlines()
+        for line in lines[1:]:
+            parts = [x.strip() for x in line.split(',')]
+            if len(parts) < 2:
+                continue
+            code = parts[1]
+            counts[code] = counts.get(code, 0) + 1
+
+    if not counts:
+        return [[], 0]
+
+    max_count = max(counts.values())
+    # all country codes that have the max count
+    top_codes = [code for code, c in counts.items() if c == max_count]
+
+    # map codes to country names
+    code_to_name = {}
+    with open('country.txt', 'r') as file:
+        for line in file.read().splitlines()[1:]:
+            parts = [x.strip() for x in line.split(',')]
+            if len(parts) >= 2:
+                code_to_name[parts[0]] = parts[1]
+
+    names = [code_to_name.get(code, code) for code in top_codes]
+    names.sort()
+    return [names, max_count]
+
+def most_widespread_products():
+    # Build set of producing countries per PID
+    pid_countries = {}
+    with open('product_country.txt', 'r') as file:
+        lines = file.read().splitlines()
+        for line in lines[1:]:
+            parts = [x.strip() for x in line.split(',')]
+            if len(parts) < 2:
+                continue
+            pid = parts[0]
+            code = parts[1]
+            pid_countries.setdefault(pid, set()).add(code)
+
+    # Count countries per PID
+    pid_counts = {pid: len(cset) for pid, cset in pid_countries.items()}
+    if not pid_counts:
+        return []
+
+    # Top three distinct counts
+    unique_counts = sorted(set(pid_counts.values()), reverse=True)
+    top_values = unique_counts[:3]
+
+    # Select PIDs whose count is in top_values
+    selected = [(pid, pid_counts[pid]) for pid in pid_counts if pid_counts[pid] in top_values]
+
+    # Map PID to product name
+    pid_to_name = {}
+    with open('product.txt', 'r') as file:
+        for line in file.read().splitlines()[1:]:
+            parts = [x.strip() for x in line.split(',')]
+            if len(parts) >= 3:
+                pid_to_name[parts[0]] = parts[2]
+
+    results = []
+    for pid, cnt in selected:
+        name = pid_to_name.get(pid, pid)
+        results.append([name, cnt])
+
+    # Sort by number of countries (desc), then product name (asc)
+    results.sort(key=lambda x: (-x[1], x[0]))
+    return results
         
-def table_maker_b(industries, products, exclusive_country, inclusive_industry):
+def table_maker_b(industries, products, exclusive_country, inclusive_industry, most_productive, most_widespread):
     print('\n\n--------------------- SECTION B ---------------------\n')
 
     # ----------
@@ -261,7 +334,36 @@ def table_maker_b(industries, products, exclusive_country, inclusive_industry):
     print(bar)
     print(title)
     print(bar)
-    print('| ' + inclusive_industry[0] + (' ' * (sizeOne - len(str(inclusive_industry[0])))) + ' | ' + (' ' * (sizeTwo - len(str(inclusive_industry[1])))) + str(inclusive_industry[1]) + ' |')
+    # most_productive: [list_of_country_names, count]
+    if most_productive and most_productive[0]:
+        countries = ', '.join(most_productive[0])
+        count = most_productive[1]
+    else:
+        countries = ''
+        count = 0
+
+    print('| ' + countries + (' ' * (sizeOne - len(str(countries)))) + ' | ' + (' ' * (sizeTwo - len(str(count)))) + str(count) + ' |')
+    print(bar)
+
+    # ---------------
+    # Most Widespread 6.
+    # ---------------
+
+    titleOne = 'Product Name'
+    titleTwo = 'Number of Countries'
+    sizeOne = 45
+    sizeTwo = 18
+
+    title = '| ' + titleOne + (' ' * (sizeOne - len(titleOne))) + ' | ' + titleTwo + (' ' * (sizeTwo - len(titleTwo))) + ' |'
+    bar = '-' * len(title)
+
+    print(bar)
+    print(title)
+    print(bar)
+    for item in most_widespread:
+        name = item[0]
+        count = item[1]
+        print('| ' + name + (' ' * (sizeOne - len(name))) + ' | ' + (' ' * (sizeTwo - len(str(count)))) + str(count) + ' |')
     print(bar)
 
 
@@ -275,6 +377,8 @@ def main():
     products = exlusive_products()
     most_exclusive_country = most_exclusive(products)
     least_exclusive_industry = least_exclusive(products)
-    table_maker_b(industries, products, most_exclusive_country, least_exclusive_industry)
+    most_productive = most_productive_countries()
+    most_widespread = most_widespread_products()
+    table_maker_b(industries, products, most_exclusive_country, least_exclusive_industry, most_productive, most_widespread)
 
 main()
