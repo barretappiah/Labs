@@ -37,7 +37,6 @@ def table_maker_a(deficit):
     print(bar)
     print(title)
     print(bar)
-
     for country in top_five_deficits:
         print('| ' + country + (' ' * (sizeOne - len(country))) + ' | $' + (' ' * (sizeTwo - len(str(top_five_deficits[country])))) + str(top_five_deficits[country]) + ' |')
     
@@ -228,6 +227,200 @@ def most_widespread_products():
     # Sort by number of countries (desc), then product name (asc)
     results.sort(key=lambda x: (-x[1], x[0]))
     return results
+
+# ------------------
+# Section C functions
+# ------------------
+def _load_country_codes_to_names():
+    d = {}
+    with open('country.txt', 'r') as f:
+        for line in f.read().splitlines()[1:]:
+            parts = [x.strip() for x in line.split(',')]
+            if len(parts) >= 2:
+                d[parts[0]] = parts[1]
+    return d
+
+def _load_tariffs():
+    # returns dict code -> dict industry -> percentage
+    tariffs = {}
+    with open('tariff.txt', 'r') as f:
+        for line in f.read().splitlines()[1:]:
+            parts = [x.strip() for x in line.split(',')]
+            if len(parts) < 3:
+                continue
+            code, industry, perc = parts[0], parts[1], parts[2]
+            try:
+                p = float(perc)
+            except ValueError:
+                continue
+            tariffs.setdefault(code, {})[industry] = p
+    return tariffs
+
+def outrageous_tariff_countries():
+    tariffs = _load_tariffs()
+    code_to_name = _load_country_codes_to_names()
+    codes = [code for code, inds in tariffs.items() if any(v > 50 for v in inds.values())]
+    names = [code_to_name.get(c, c) for c in codes]
+    names.sort()
+    return names
+
+def tariff_free_countries():
+    code_to_name = _load_country_codes_to_names()
+    tariffs = _load_tariffs()
+    tariff_codes = set(tariffs.keys())
+    free = [name for code, name in code_to_name.items() if code not in tariff_codes]
+    free.sort()
+    return free
+
+def selective_tariff_countries():
+    # industries universe (same as used elsewhere)
+    all_industries = {'Agriculture', 'Food', 'Manufacturing', 'Pharmacy', 'Tech'}
+    code_to_name = _load_country_codes_to_names()
+    tariffs = _load_tariffs()
+
+    results = []
+    for code, name in code_to_name.items():
+        present = set(tariffs.get(code, {}).keys())
+        # must have some tariffs but not all
+        if 0 < len(present) < len(all_industries):
+            missing = sorted(all_industries - present)
+            for industry in missing:
+                results.append([name, industry])
+
+    # sort by country then industry
+    results.sort(key=lambda x: (x[0], x[1]))
+    return results
+
+def table_maker_c(outrageous, tariff_free, selective):
+    print('\n\n--------------------- SECTION C ---------------------\n')
+
+    # 1. Outrageous Tariffs
+    titleOne = 'Country'
+    sizeOne = 40
+    title = '| ' + titleOne + (' ' * (sizeOne - len(titleOne))) + ' |'
+    bar = '-' * len(title)
+
+    print(bar)
+    print(title)
+    print(bar)
+    for country in outrageous:
+        print('| ' + country + (' ' * (sizeOne - len(country))) + ' |')
+    print(bar)
+
+def cheapest_import_strategy(home_code='US'):
+    # load helpers
+    code_to_name = _load_country_codes_to_names()
+    tariffs = _load_tariffs()
+
+    # load product metadata
+    pid_to_name = {}
+    pid_to_industry = {}
+    with open('product.txt', 'r') as f:
+        for line in f.read().splitlines()[1:]:
+            parts = [x.strip() for x in line.split(',')]
+            if len(parts) >= 3:
+                pid_to_name[parts[0]] = parts[2]
+                pid_to_industry[parts[0]] = parts[1].strip()
+
+    # load producers and prices
+    pid_producers = {}
+    with open('product_country.txt', 'r') as f:
+        for line in f.read().splitlines()[1:]:
+            parts = [x.strip() for x in line.split(',')]
+            if len(parts) < 3:
+                continue
+            pid, code, price = parts[0], parts[1], parts[2]
+            try:
+                p = float(price)
+            except ValueError:
+                continue
+            pid_producers.setdefault(pid, []).append((code, p))
+
+    # read shopping list (order matters)
+    with open('shopping_list.txt', 'r') as f:
+        shopping = [line.strip() for line in f.read().splitlines() if line.strip()]
+
+    rows = []
+    total_actual = 0.0
+    total_tariff = 0.0
+
+    home_tariffs = tariffs.get(home_code, {})
+
+    for pid in shopping:
+        name = pid_to_name.get(pid, pid)
+        industry = pid_to_industry.get(pid, '')
+        producers = pid_producers.get(pid, [])
+        if not producers:
+            continue
+
+        best = None
+        best_country_name = ''
+        best_price = 0.0
+        best_tariff_pct = 0.0
+        best_tariff_val = 0.0
+        best_total = 0.0
+
+        for code, price in producers:
+            tariff_pct = home_tariffs.get(industry, 0.0)
+            tariff_val = price * (tariff_pct / 100.0)
+            total = price + tariff_val
+            cname = code_to_name.get(code, code)
+            candidate = (total, cname, price, tariff_pct, tariff_val)
+            if best is None or (candidate[0] < best[0]) or (candidate[0] == best[0] and candidate[1] < best[1]):
+                best = candidate
+                best_country_name = cname
+                best_price = price
+                best_tariff_pct = tariff_pct
+                best_tariff_val = tariff_val
+                best_total = total
+
+        rows.append([name, len(producers), best_country_name, best_price, best_tariff_pct, best_tariff_val, best_total])
+        total_actual += best_price
+        total_tariff += best_tariff_val
+
+    grand_total = total_actual + total_tariff
+    return rows, total_actual, total_tariff, grand_total
+
+def table_maker_d(rows, total_actual, total_tariff, grand_total):
+    print('\n\n--------------------- SECTION D ---------------------\n')
+
+    titleOne = 'Product Name'
+    titleTwo = 'Countries'
+    titleThree = 'Best Country'
+    titleFour = 'Actual Cost'
+    titleFive = 'Tariff %'
+    titleSix = 'Tariff Val'
+    titleSeven = 'Total Cost'
+
+    sizeOne = 30
+    sizeTwo = 9
+    sizeThree = 18
+    sizeFour = 14
+    sizeFive = 9
+    sizeSix = 14
+    sizeSeven = 14
+
+    title = '| ' + titleOne + (' ' * (sizeOne - len(titleOne))) + ' | ' + titleTwo + (' ' * (sizeTwo - len(titleTwo))) + ' | ' + titleThree + (' ' * (sizeThree - len(titleThree))) + ' | ' + titleFour + (' ' * (sizeFour - len(titleFour))) + ' | ' + titleFive + (' ' * (sizeFive - len(titleFive))) + ' | ' + titleSix + (' ' * (sizeSix - len(titleSix))) + ' | ' + titleSeven + (' ' * (sizeSeven - len(titleSeven))) + ' |'
+    bar = '-' * len(title)
+
+    print(bar)
+    print(title)
+    print(bar)
+
+    for r in rows:
+        name, countries, best_country, actual, pct, tval, total = r
+        actual_s = f"$ {actual:,.2f}"
+        tval_s = f"$ {tval:,.2f}"
+        total_s = f"$ {total:,.2f}"
+        pct_s = f"{pct:.1f}%"
+
+        print('| ' + name + (' ' * (sizeOne - len(name))) + ' | ' + str(countries) + (' ' * (sizeTwo - len(str(countries)))) + ' | ' + best_country + (' ' * (sizeThree - len(best_country))) + ' | ' + actual_s + (' ' * (sizeFour - len(actual_s))) + ' | ' + pct_s + (' ' * (sizeFive - len(pct_s))) + ' | ' + tval_s + (' ' * (sizeSix - len(tval_s))) + ' | ' + total_s + (' ' * (sizeSeven - len(total_s))) + ' |')
+
+    print(bar)
+    print(f"Cost Before Tariff: {total_actual:,.2f}")
+    print(f"Total Tariff Paid: {total_tariff:,.2f}")
+    print(f"Grand Total: {grand_total:,.2f}")
+    
         
 def table_maker_b(industries, products, exclusive_country, inclusive_industry, most_productive, most_widespread):
     print('\n\n--------------------- SECTION B ---------------------\n')
@@ -380,5 +573,15 @@ def main():
     most_productive = most_productive_countries()
     most_widespread = most_widespread_products()
     table_maker_b(industries, products, most_exclusive_country, least_exclusive_industry, most_productive, most_widespread)
+
+    # Section C: analyzing government's tariff decisions
+    outrageous = outrageous_tariff_countries()
+    tariff_free = tariff_free_countries()
+    selective = selective_tariff_countries()
+    table_maker_c(outrageous, tariff_free, selective)
+
+    # Section D: Shopping list cost breakdown (default home country = 'US')
+    rows, total_actual, total_tariff, grand_total = cheapest_import_strategy('US')
+    table_maker_d(rows, total_actual, total_tariff, grand_total)
 
 main()
