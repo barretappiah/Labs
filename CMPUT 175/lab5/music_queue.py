@@ -39,7 +39,7 @@ def extract_artists(song_info):
         return ", ".join(artist_names)
     except:
         return "NA"
-    pass
+    
 
 def song_search(query):
     """
@@ -53,7 +53,7 @@ def song_search(query):
     ytmusic = YTMusic()
     search_results = ytmusic.search(query, filter="songs")
     return search_results[:NO_OF_RESULTS]
-    pass
+
 
 def filter_info(results):
     """
@@ -75,9 +75,9 @@ def filter_info(results):
             songs.append(song)
             
         except:
-            raise Exception("An error occurred while filtering the information.")
+            raise Exception("An error occurred while filtering")
     return songs
-    pass
+
 
 def print_song_results(results):
     """
@@ -118,22 +118,23 @@ def search():
                 \tEnter '0' to search again
                 \tEnter 'q' to go back
             """
-    choice = input(f"{choice_str}\n>> ")
-    try:
-        if choice not in ['0', 'q'] and (not choice.isdigit() or int(choice) < 1 or int(choice) > len(filtered_results)):
-            raise Exception("Invalid input. Please enter a valid number or 'q' to go back.")
-        
-        if choice.lower() == 'q':
-            return None
-        elif int(choice):
-            if 1 <= int(choice) <= len(filtered_results):
-                return filtered_results[int(choice) - 1]
-        elif choice == '0':
-            return search()
-    except:
-        print("Invalid input. Please enter a valid number or 'q' to go back.")
+    selected_song = False
+    i = 0
+    while not selected_song:
+        if i > 0:
+            print('Invalid Input.')
+        choice = input(f"{choice_str}\n>> ")
+        if choice in ['0', 'q'] or (choice.isdigit() and 1 <= int(choice) <= len(filtered_results)):
+            selected_song = True
+        i = 1
+
+    if choice.lower() == 'q':
         return None
-    pass
+    elif choice == '0':
+        return search()
+    else:
+        return filtered_results[int(choice) - 1]
+
 
 def main():
     """
