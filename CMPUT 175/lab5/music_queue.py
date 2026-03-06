@@ -33,6 +33,12 @@ def extract_artists(song_info):
     representation.
     """
     # TODO: Implement this function
+    try:
+        artists = song_info['artists']
+        artist_names = [artist['name'] for artist in artists]
+        return ", ".join(artist_names)
+    except:
+        return "NA"
     pass
 
 def song_search(query):
@@ -44,6 +50,9 @@ def song_search(query):
     and returns the top "NO_OF_RESULTS" results.
     """
     # TODO: Implement this function
+    ytmusic = YTMusic()
+    search_results = ytmusic.search(query, filter="songs")
+    return search_results[:NO_OF_RESULTS]
     pass
 
 def filter_info(results):
@@ -56,6 +65,18 @@ def filter_info(results):
     exception.
     """
     # TODO: Implement this function
+    songs = []
+    for result in results:
+        try:
+            name = result['title']
+            artist = extract_artists(result)
+            duration = time_to_seconds(result['duration'])
+            song = Song(name, artist, duration)
+            songs.append(song)
+            
+        except:
+            raise Exception("An error occurred while filtering the information.")
+    return songs
     pass
 
 def print_song_results(results):
@@ -85,6 +106,33 @@ def search():
     7. If the user wants to go back, it returns None
     """
     # TODO: Implement this function
+    song_title = input("Search: ")
+
+    song_results = song_search(song_title)
+    filtered_results = filter_info(song_results)
+    print_song_results(filtered_results)
+    
+    print('Chose one of the following options: ')
+    choice_str = """Choose one of the following options:
+                \tEnter a number (1-5) to add a song to playlist
+                \tEnter '0' to search again
+                \tEnter 'q' to go back
+            """
+    choice = input(f"{choice_str}\n>> ")
+    try:
+        if choice not in ['0', 'q'] and (not choice.isdigit() or int(choice) < 1 or int(choice) > len(filtered_results)):
+            raise Exception("Invalid input. Please enter a valid number or 'q' to go back.")
+        
+        if choice.lower() == 'q':
+            return None
+        elif int(choice):
+            if 1 <= int(choice) <= len(filtered_results):
+                return filtered_results[int(choice) - 1]
+        elif choice == '0':
+            return search()
+    except:
+        print("Invalid input. Please enter a valid number or 'q' to go back.")
+        return None
     pass
 
 def main():
