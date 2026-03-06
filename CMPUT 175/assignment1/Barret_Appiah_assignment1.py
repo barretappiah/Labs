@@ -574,7 +574,7 @@ def table_maker_d(rows, total_actual, total_tariff, grand_total):
         total_s = f"{total:,.2f}"
         pct_s = f"{pct:.1f}%"
 
-          # left-justify text fields, right-justify numeric fields
+        # left-justify text fields, right-justify numeric fields
         print('| ' + name + (' ' * (sizeOne - len(name))) +
             ' | ' + (' ' * (sizeTwo - len(str(countries)))) + str(countries) +
             ' | ' + best_country + (' ' * (sizeThree - len(best_country))) +
