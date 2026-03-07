@@ -20,6 +20,7 @@ def initialize_stacks(file):
             for _ in range(int(quantity) - len(stack_data)):
                 stack_data.append([""] * int(capacity))
 
+        # Create stack objects and store in list
         stacks = []
         for stack in stack_data:
             new_stack = Stack(int(capacity))
@@ -39,14 +40,20 @@ def display_stacks(stacks):
 # Get the choice for move-from/move-to stack from the user
 def get_stack_choice(prompt: str, n: int) -> int:
     #Returns a valid stack index in 1..n (as an int). Keeps retrying until valid.# 
-    while True:
+    for i in range(2):
         try:
             choice = int(input(prompt))
             if 1 <= choice <= n:
                 return choice
-            print("Invalid stack number. Please try again.")
+            else:
+                print("Invalid stack number or stack is empty. Please try again.")
+
         except ValueError:
-            print("Please enter valid integers for stack numbers.")
+            if i == 0:
+                print("Invalid stack number or stack is empty. Please try again.")
+
+    raise ValueError
+
 
 # Move an item between stacks
 def move_item(stacks, from_stack, to_stack):
@@ -62,6 +69,8 @@ def move_item(stacks, from_stack, to_stack):
         
 # check if all stacks are completed
 def check_completion(stacks):
+    # If its not completed and not empty, then its not good (mixed fruits, or not enough)
+
     completed = 0
     for stack in stacks:
         if stack.is_completed():
@@ -80,22 +89,29 @@ def main():
 
     # Game Loop
     while not all_complete:
+        valid = True
         display_stacks(stacks)
 
         # Select stacks to move from and to
         range_of_stacks = f"(1-{len(stacks)})"
-        move_from = get_stack_choice(f"Select a stack to move from {range_of_stacks}: ", len(stacks))
-        move_to   = get_stack_choice(f"Select a stack to move to {range_of_stacks}: ", len(stacks))
+
+        try:
+            move_from = get_stack_choice(f"Select a stack to move from {range_of_stacks}: ", len(stacks))
+            move_to = get_stack_choice(f"Select a stack to move to {range_of_stacks}: ", len(stacks))
+        except ValueError as e:
+            print('Please enter valid integers for stack numbers.')
+            valid = False
+
 
 
         # Execute the move
-        try:
-            move_item(stacks, move_from - 1, move_to - 1)
+        if valid:
+            try:
+                move_item(stacks, move_from - 1, move_to - 1)
+            
+            except Exception as e:
+                pass
 
-        except ValueError:
-            print("Invalid input, enter a number.")
-        except Exception as e:
-            print(e)
 
         all_complete = check_completion(stacks)
 
