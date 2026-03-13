@@ -34,13 +34,18 @@ def extract_artists(song_info):
     """
     # TODO: Implement this function
     try:
+        # artists: dict with name and id (inside of song_info dict)
         artists = song_info['artists']
-        artist_names = [artist['name'] for artist in artists]
+        artist_names = []
+        
+        for artist in artists:
+            artist_names.append(artist['name'])
+        print(artist_names)
+
         return ", ".join(artist_names)
     except:
         return "NA"
     
-
 def song_search(query):
     """
     Input: Search query
@@ -53,7 +58,6 @@ def song_search(query):
     ytmusic = YTMusic()
     search_results = ytmusic.search(query, filter="songs")
     return search_results[:NO_OF_RESULTS]
-
 
 def filter_info(results):
     """
@@ -77,7 +81,6 @@ def filter_info(results):
         except:
             raise Exception("An error occurred while filtering")
     return songs
-
 
 def print_song_results(results):
     """
@@ -107,25 +110,24 @@ def search():
     """
     # TODO: Implement this function
     song_title = input("Search: ")
-
     song_results = song_search(song_title)
     filtered_results = filter_info(song_results)
     print_song_results(filtered_results)
     
     print('Chose one of the following options: ')
-    choice_str = """Choose one of the following options:
-                \tEnter a number (1-5) to add a song to playlist
+    choice_str = f"""Choose one of the following options:
+                \tEnter a number (1-{len(filtered_results)}) to add a song to playlist
                 \tEnter '0' to search again
                 \tEnter 'q' to go back
             """
-    selected_song = False
+    valid_response = False
     i = 0
-    while not selected_song:
+    while not valid_response:
         if i > 0:
             print('Invalid Input.')
         choice = input(f"{choice_str}\n>> ")
         if choice in ['0', 'q'] or (choice.isdigit() and 1 <= int(choice) <= len(filtered_results)):
-            selected_song = True
+            valid_response = True
         i = 1
 
     if choice.lower() == 'q':
@@ -134,7 +136,6 @@ def search():
         return search()
     else:
         return filtered_results[int(choice) - 1]
-
 
 def main():
     """
