@@ -29,6 +29,13 @@ def extract_artists(song):
     This function extracts and returns a comma-separated string of artist names from the song dictionary.
     """
     # TODO: Implement this function
+    try:
+        artists = song['artists']
+        artist_names = [artist['name'] for artist in artists]
+        return ", ".join(artist_names)
+    except:
+        return "NA"
+
 
 def song_search(query):
     """
