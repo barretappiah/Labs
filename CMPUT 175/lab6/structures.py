@@ -222,7 +222,7 @@ class DLinkedList:
         """
         # TODO: Implement this method
         if self.__current is None:
-            return None
+            raise Exception("Queue is empty")
         return self.__current.get_data()
     
     def play_next(self):
