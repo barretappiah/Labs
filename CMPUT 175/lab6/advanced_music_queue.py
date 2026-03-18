@@ -36,7 +36,6 @@ def extract_artists(song):
     except:
         return "NA"
 
-
 def song_search(query):
     """
     Input: Search query
@@ -45,6 +44,9 @@ def song_search(query):
     This function invokes the search method on YTMusic object with required arguments
     """
     # TODO: Implement this function
+    ytmusic = YTMusic()
+    results = ytmusic.search(query, filter="songs")
+    return results[:NO_OF_RESULTS]
 
 def filter_info(results):
     """
@@ -56,6 +58,18 @@ def filter_info(results):
     exception.
     """
     # TODO: Implement this function
+    songs = []
+    for result in results:
+        try:
+            name = result['title']
+            artist = extract_artists(result)
+            duration = time_to_seconds(result['duration'])
+            song = Song(name, artist, duration)
+            songs.append(song)
+            
+        except:
+            raise Exception("An error occurred while filtering")
+    return songs
 
 def print_song_results(results):
     """
@@ -84,6 +98,34 @@ def search():
     7. If the user wants to go back, it returns None
     """
     # TODO: Implement this function
+    song_title = input("Search: ")
+
+    song_results = song_search(song_title)
+    filtered_results = filter_info(song_results)
+    print_song_results(filtered_results)
+    
+    choice_str = """Choose one of the following options:
+                \tEnter a number (1-5) to add a song to playlist
+                \tEnter '0' to search again
+                \tEnter 'q' to go back
+            """
+    print(choice_str)
+    selected_song = False
+    i = 0
+    while not selected_song:
+        if i > 0:
+            print('Invalid Input.')
+        choice = input(f">> ")
+        if choice in ['0', 'q'] or (choice.isdigit() and 1 <= int(choice) <= len(filtered_results)):
+            selected_song = True
+        i = 1
+
+    if choice.lower() == 'q':
+        return None
+    elif choice == '0':
+        return search()
+    else:
+        return filtered_results[int(choice) - 1]
 
 def main():
     """
@@ -98,13 +140,15 @@ def main():
     """
     queue = DLinkedList()
     clear()
-    print("WELCOME\n")
+    print("WELCOME")
     choice_str = """Choose one of the following options:
                 \t1. Add Song
                 \t2. Next Song
-                \t3. Show Queue
-                \t4. Clear Queue
-                \t5. Quit
+                \t3. Previous Song
+                \t4. Remove Current Song
+                \t5. Show Queue
+                \t6. Clear Queue
+                \t7. Quit
                 Enter the choice (eg: 2)
                 """
     contBuild = True
@@ -113,23 +157,24 @@ def main():
 
             print('Currently playing:')
             if queue.is_empty() == False: 
-                print('  ',queue.peek(),'\n')
+                print('  ',queue.get_current(),'\n')
             else: 
                 print('  ',"None",'\n')
 
             print(choice_str)
             choice = input('>> ')
-            while choice not in ['1','2','3','4','5']:
+            while choice not in ['1','2','3','4','5','6','7']:
                 print('Invalid Input.')
                 choice = input('>> ')
             
             if choice == '1':
+                clear()
                 song = search()
                 if song != None:
                     if queue.is_empty():
                         queue.add_last(song)
                     else:
-                        place = input("Where would you like to add the song:\n\t1. Top\n\t2. End\n>> ")
+                        place = input("Where would you like to add the song:\n\t1. Add Next\n\t2. Add to the End\n>> ")
                         while place not in ['1','2']:
                             print('Invalid Input.')
                             place = input('>> ')
@@ -143,15 +188,55 @@ def main():
 
             elif choice == '2':
                 clear()
-                queue.dequeue()
-                print('Now playing:')
-                if queue.size() > 0:
-                    print("  ",queue.peek())
+                if queue.is_empty():
+                    print("Queue is empty.")
                 else:
-                    print("   None")
+                    current_before = queue.get_current()
+                    queue.play_next()
+                    current_after = queue.get_current()
+
+                    if current_before == current_after:
+                        print("No next song in the queue.")
+                    else:
+                        print('Now playing:')
+                        print("  ",queue.get_current())
+
                 input("\nPress enter key to continue...")
 
             elif choice == '3':
+                clear()
+                if queue.is_empty():
+                    print('Queue is empty.')
+                else:
+                    current_before = queue.get_current()
+                    queue.play_previous()
+                    current_after = queue.get_current()
+
+                    if current_before == current_after:
+                        print('No previous song in the queue.')
+                    else:
+                        print('Now playing:')
+                        print("  ",queue.get_current())
+
+                input("\nPress enter key to continue...")
+
+            elif choice == '4':
+                clear()
+                if queue.is_empty():
+                    print('Queue is empty.')
+                else:
+                    removed_song = queue.remove_current()
+                    print("Removed song:")
+                    print("  ",removed_song)
+                    if queue.is_empty():
+                        print('The queue is now empty.')
+                    else:
+                        print('Now playing:')
+                        print("  ",queue.get_current())
+                
+                input("\nPress enter key to continue...")
+
+            elif choice == '5':
                 clear()
                 try:
                     print(queue)
@@ -159,13 +244,13 @@ def main():
                 except Exception as e:
                     print(e)
             
-            elif choice == '4':
+            elif choice == '6':
                 clear()
                 queue.clear()
                 print('The queue has been cleared!')
                 input("\nPress enter key to continue...")
 
-            elif choice == '5':
+            elif choice == '7':
                 contBuild = False
             
             clear()
